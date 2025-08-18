@@ -1,4 +1,4 @@
-package com.anki.anki.model.languages;
+package com.anki.anki.model.language;
 
 public enum Language {
     ENGLISH("english"),

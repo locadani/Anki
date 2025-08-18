@@ -1,4 +1,4 @@
-package com.anki.anki.model.languages;
+package com.anki.anki.model.language;
 
 import java.util.ArrayList;
 import java.util.Arrays;

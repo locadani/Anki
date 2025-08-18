@@ -1,4 +1,4 @@
-package com.anki.anki.model.creators;
+package com.anki.anki.service;
 
 public abstract class ContentCreator {
 }
