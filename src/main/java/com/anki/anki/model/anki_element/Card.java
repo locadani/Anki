@@ -8,7 +8,7 @@ public class Card {
     // Always to be treated as HTML
     public String backValue;
 
-    public Card(String frontValue, String backValue, String sourceLanguage, List<String> destinationLanguage) {
+    public Card(String frontValue, String backValue) {
         this.frontValue = frontValue;
         this.backValue = backValue;
     }

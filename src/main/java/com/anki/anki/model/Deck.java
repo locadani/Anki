@@ -7,14 +7,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 public class Deck {
-    private String name;
-    private List<Card> cards;
-    @JsonIgnore // for now, ignore converting it to json when sending to frontend, just because the settings were not yet defined
-    private DeckSettings settings;
+    public String name;
+    public List<Card> cards;
+    //private DeckSettings settings; Può essere utile ma va capito come usarlo
 
-    public Deck(String name, List<Card> cards, DeckSettings settings) {
+    public Deck(String name, List<Card> cards) {
         this.name = name;
         this.cards = cards;
-        this.settings = settings;
     }
 }
