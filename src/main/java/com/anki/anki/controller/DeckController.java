@@ -2,7 +2,6 @@ package com.anki.anki.controller;
 
 
 import com.anki.anki.model.Deck;
-import com.anki.anki.model.anki_element.Card;
 import com.anki.anki.service.DeckService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

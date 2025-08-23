@@ -2,6 +2,7 @@ package com.anki.anki.service;
 
 import com.anki.anki.model.Deck;
 import com.anki.anki.model.anki_element.Card;
+import com.anki.anki.repository.AnkiConnectRepository;
 import com.anki.anki.repository.MockDeckRepositoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,12 +21,12 @@ import java.util.zip.ZipInputStream;
 public class DeckService {
 
     // Adding autowired doesnt allow to set final
-    private final MockDeckRepositoryRepository deckRepository;
+    private final AnkiConnectRepository deckRepository;
 
     //@Autowired
     private CardService cardService;
 
-    public DeckService(MockDeckRepositoryRepository deckRepository) {
+    public DeckService(AnkiConnectRepository deckRepository) {
         this.deckRepository = deckRepository;
     }
 
