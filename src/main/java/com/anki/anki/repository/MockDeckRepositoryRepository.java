@@ -2,9 +2,6 @@ package com.anki.anki.repository;
 
 import com.anki.anki.model.Deck;
 import com.anki.anki.model.anki_element.Card;
-import com.anki.anki.model.language.Language;
-import com.anki.anki.model.settings.DeckSettings;
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -14,7 +11,7 @@ public class MockDeckRepositoryRepository implements AnkiDeckRepository {
 
     private final List<Deck> decks = new ArrayList<>();
     // Makes the method run after the injection (?)
-    @PostConstruct
+    //@PostConstruct
     public void init() {
         // Sample cards
         List<Card> frenchCards = List.of(
@@ -72,18 +69,12 @@ public class MockDeckRepositoryRepository implements AnkiDeckRepository {
 
     @Override
     public void addCardToDeck(String deckName, Card card) {
-        Deck deck = getDeckByName(deckName).orElse(null);
-        if (deck != null) {
-            deck.cards.add(card);
-        }
+        getDeckByName(deckName).ifPresent(deck -> deck.cards.add(card));
     }
 
     @Override
     public void removeCardFromDeck(String deckName, String frontText) {
-        Deck deck = getDeckByName(deckName).orElse(null);
-        if (deck != null) {
-            deck.cards.removeIf(card -> card.frontValue.equalsIgnoreCase(frontText));
-        }
+        getDeckByName(deckName).ifPresent(deck -> deck.cards.removeIf(card -> card.frontValue.equalsIgnoreCase(frontText)));
     }
 
     // Helper method to find deck index by name

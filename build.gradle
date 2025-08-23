@@ -22,6 +22,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // SQLite JDBC driver
+    implementation 'org.xerial:sqlite-jdbc:3.43.0.0'
+    // To send plain requests to ankiconnect, without it AnkiConnect blocks java requests
+    // Apache HttpClient 4.x
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+
+    // Jackson for JSON (if not already present)
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+
 }
 
 tasks.named('test') {
