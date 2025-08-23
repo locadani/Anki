@@ -2,11 +2,12 @@ package com.anki.anki.controller;
 
 
 import com.anki.anki.model.Deck;
-import com.anki.anki.service.CardService;
+import com.anki.anki.model.anki_element.Card;
 import com.anki.anki.service.DeckService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -20,15 +21,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/decks")
 class DeckController {
-
-    // TODO: da rimuovere?
-    @Autowired
-    private CardService cardService;
-
-    @GetMapping("/card/{id}")
-    String card(@PathVariable int id) {
-        return cardService.getCardById(id);
-    }
 
     @Autowired
     private DeckService deckService;
@@ -52,7 +44,7 @@ class DeckController {
     public void createDeck(@RequestBody Deck deck) {
         if(!deckService.createDeck(deck)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Deck already existing. Use APIs to add card to " + deck.name);
-        };
+        }
         List<Deck> decks = getAllDecks();
     }
 
@@ -61,6 +53,17 @@ class DeckController {
     public void deleteDeck(@PathVariable String deckName) {
         if (!deckService.deleteDeck(deckName)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find deck called " + deckName);
+        }
+    }
+
+    @PostMapping("/uploadApkgFile")
+    @ResponseStatus(HttpStatus.OK)
+    public String uploadApkg(@RequestParam("file") MultipartFile file) {
+        try {
+            deckService.importApkg(file);
+            return "Import successful";
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Import failed: " + e.getMessage(), e);
         }
     }
 }
