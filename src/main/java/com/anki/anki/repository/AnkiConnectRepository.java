@@ -154,25 +154,22 @@ public class AnkiConnectRepository implements AnkiDeckRepository {
         Map<String, Object> params = Map.of(
                 "note", Map.of(
                         "deckName", deckName,
+                        // TODO: Not working"cardType", "Carta 1",
                         "modelName", "Basic",
                         "fields", Map.of(
-                                "Front", front + "<br><br><i>" + example + "</i>",
-                                "Back", back
+                                "Front", front,
+                                "Back", back + "<br><br><i>" + example + "</i>"
                         ),
                         "options", Map.of(
                                 "allowDuplicate", false
                         ),
-                        "tags", List.of("turkish")
+                        "tags", List.of("ai-created")
                 )
         );
 
-        Map<String, Object> request = Map.of(
-                "action", "addNote",
-                "version", 6,
-                "params", params
-        );
 
-        Map response = restTemplate.postForObject(ANKI_CONNECT_URL, request, Map.class);
+
+        Map<String, Object> response = sendRequest("addNote", Map.of("note", params.get("note")));
 
         // Check the response for success
         if (response != null && response.containsKey("result")) {
