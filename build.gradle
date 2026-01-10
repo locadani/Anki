@@ -27,12 +27,20 @@ dependencies {
     // To send plain requests to ankiconnect, without it AnkiConnect blocks java requests
     // Apache HttpClient 4.x
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
     // Jackson for JSON (if not already present)
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-
-
+    implementation 'org.springframework.shell:spring-shell-starter:3.2.4'
 }
+
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:1.0.1"
+    }
+}
+
+
 
 tasks.named('test') {
 	useJUnitPlatform()

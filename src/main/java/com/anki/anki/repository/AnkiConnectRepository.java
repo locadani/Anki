@@ -10,6 +10,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -19,6 +20,7 @@ public class AnkiConnectRepository implements AnkiDeckRepository {
 
     private static final String ANKI_CONNECT_URL = "http://127.0.0.1:8765";
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     // Helper method to send requests to AnkiConnect using Apache HttpClient
     private Map<String, Object> sendRequest(String action, Map<String, Object> params) {
@@ -145,6 +147,38 @@ public class AnkiConnectRepository implements AnkiDeckRepository {
 
         if (cardIds != null && !cardIds.isEmpty()) {
             sendRequest("deleteCards", Map.of("cards", cardIds));
+        }
+    }
+
+    public void addCard(String deckName, String front, String back, String example) {
+        Map<String, Object> params = Map.of(
+                "note", Map.of(
+                        "deckName", deckName,
+                        // TODO: Not working"cardType", "Carta 1",
+                        "modelName", "Basic",
+                        "fields", Map.of(
+                                "Front", front,
+                                "Back", back + "<br><br><i>" + example + "</i>"
+                        ),
+                        "options", Map.of(
+                                "allowDuplicate", false
+                        ),
+                        "tags", List.of("ai-created")
+                )
+        );
+
+
+
+        Map<String, Object> response = sendRequest("addNote", Map.of("note", params.get("note")));
+
+        // Check the response for success
+        if (response != null && response.containsKey("result")) {
+            // If the result is not null, the card was added successfully
+            System.out.println("Card added successfully to deck: " + deckName);
+        } else {
+            // Log failure if there's no result or an error in the response
+            System.err.println("Failed to add card to deck: " + deckName);
+            System.err.println("Response from AnkiConnect: " + response);
         }
     }
 }
