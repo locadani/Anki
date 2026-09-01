@@ -32,3 +32,12 @@ pub async fn login(State(pool): State<SqlitePool>, session: Session, login_form:
         None => Err((StatusCode::UNAUTHORIZED, "invalid credentials".to_string())),
     }
 }
+
+// session is the session related to the user calling this function
+pub async fn logout(session: Session) -> Result<Redirect, (StatusCode, String)>{
+    let result = session.delete().await;
+    match result {
+        Ok(_) => Ok(Redirect::to("/login")),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+    }
+}
