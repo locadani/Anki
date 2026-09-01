@@ -5,5 +5,5 @@ mod auth;
 mod db;
 
 pub use auth::verify_password;
-pub use user::{User, find_by_username};
+pub use user::find_by_username;
 pub use db::{connect, count_users};
