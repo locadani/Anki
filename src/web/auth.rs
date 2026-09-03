@@ -1,7 +1,8 @@
 use axum::{
-    extract::{Form, State},
-    http::StatusCode,
-    response::Redirect
+    extract::{Form, FromRequestParts, State},
+    http::{request::Parts, StatusCode},
+    Json,
+    response::Redirect,
 };
 use sqlx::{
     sqlite::SqlitePool,
@@ -12,6 +13,26 @@ use tower_sessions::Session;
 pub struct Login {
     username: String,
     password: String,
+}
+
+
+pub struct AuthUser {
+    pub user_id: i64,
+}
+
+impl<S: Send + Sync> FromRequestParts<S> for AuthUser {
+    type Rejection = (StatusCode, String);
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> { // self means "the type after for " AuthUser int his case
+        let session = Session::from_request_parts(parts, state)
+            .await
+            .map_err(|(status, msg)| (status, msg.to_string()))?;
+        let user_id = session.get::<i64>("user_id").await;
+        match user_id {
+            Ok(Some(id)) => Ok(AuthUser { user_id: id }),
+            Ok(None) => Err((StatusCode::UNAUTHORIZED, "not logged in".to_string())),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        }
+    }
 }
 
 // session is created by the session manager if not existed, or just passed if already existing
@@ -40,4 +61,9 @@ pub async fn logout(session: Session) -> Result<Redirect, (StatusCode, String)>{
         Ok(_) => Ok(Redirect::to("/login")),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
     }
+}
+
+pub async fn me(auth: AuthUser) -> Result<Json<i64>, (StatusCode, String)>{
+    let my_id = auth.user_id;
+    Ok(Json(my_id))
 }
