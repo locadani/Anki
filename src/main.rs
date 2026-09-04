@@ -21,6 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> { // use async fn main
         .route("/users/me", get(web::me))
         .route("/login", post(web::login))
         .route("/logout", post(web::logout))
+        .route("/deck", post(web::create_deck))
         .layer(session_layer) // runs before and after the handler handles the routes
         .with_state(pool.clone()); // database connection
     
