@@ -5,7 +5,7 @@ use sqlx::sqlite::SqlitePool;
 pub struct Deck {
     pub id: i64,
     user_id: i64,
-    name: String
+    pub name: String
 }
 
 

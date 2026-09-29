@@ -1,0 +1,10 @@
+<h1>Decks</h1>
+<ul>
+{% if decks.is_empty() %}
+    <li>No decks</li>
+{% else %}
+    {% for deck in decks %}
+        <li>{{ deck.name }}</li>
+    {% endfor %}
+{% endif %}
+</ul>
