@@ -1,8 +1,6 @@
+use askama::Template;
 use axum::{
-    extract::{Form, FromRequestParts, State},
-    http::{request::Parts, StatusCode},
-    Json,
-    response::Redirect,
+    Json, extract::{Form, FromRequestParts, State}, http::{StatusCode, request::Parts}, response::{Html, Redirect},
 };
 use sqlx::{
     sqlite::SqlitePool,
@@ -15,6 +13,11 @@ pub struct Login {
     password: String,
 }
 
+#[derive(Template)]
+#[template(path = "login.html", print = "code")]
+struct LoginTemplate {
+ 
+}
 
 pub struct AuthUser {
     pub user_id: i64,
@@ -35,6 +38,17 @@ impl<S: Send + Sync> FromRequestParts<S> for AuthUser {
     }
 }
 
+pub async fn login_page() -> Result<Html<String>, (StatusCode, String)>{
+    let template = LoginTemplate{};
+
+    // like logout
+    let login_page = template.render();
+    match login_page {
+        Ok(login_page) => Ok(Html(login_page)),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())), // should never go here
+    }
+}
+
 // session is created by the session manager if not existed, or just passed if already existing
 // at the end of this function, the session manager notices that the session changed and will handle it
 pub async fn login(State(pool): State<SqlitePool>, session: Session, login_form: Form<Login>) -> Result<Redirect, (StatusCode, String)>{
@@ -45,7 +59,7 @@ pub async fn login(State(pool): State<SqlitePool>, session: Session, login_form:
         Some(user) => {
             if crate::core::verify_password(&login_form.password, &user.password_hash) {
                 session.insert("user_id", user.id).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-                Ok(Redirect::to("/")) // Homepage
+                Ok(Redirect::to("/decks")) // Homepage
             } else {
                 Err((StatusCode::UNAUTHORIZED, "invalid credentials".to_string()))
             }

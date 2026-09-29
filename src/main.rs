@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> { // use async fn main
         .route("/health", get(health))
         .route("/users/count", get(web::count_users))
         .route("/users/me", get(web::me))
-        .route("/login", post(web::login))
+        .route("/login", get(web::login_page).post(web::login))
         .route("/logout", post(web::logout))
         .route("/deck", post(web::create_deck))
         .route("/decks", get(web::list_decks))
