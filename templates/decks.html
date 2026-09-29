@@ -5,15 +5,16 @@ Create deck:
 </form>
 <br>
 <h1>Decks</h1>
-<ul>
 {% if decks.is_empty() %}
-    <li>No decks</li>
+    No decks
 {% else %}
-    {% for deck in decks %}
-        <li>{{ deck.name }}</li>
-    {% endfor %}
+
+    <ul>
+        {% for deck in decks %}
+            <li>{{ deck.name }}</li>
+        {% endfor %}
+    </ul>
 {% endif %}
-</ul>
 <form action="/logout" method="POST">
     <button type="submit">Logout</button>
 </form>
