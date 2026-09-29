@@ -1,6 +1,6 @@
 use askama::Template;
 use axum::{
-    Json, extract::{Form, State}, http::StatusCode, response::Html,
+    extract::{Form, State}, http::StatusCode, response::{Html, Redirect},
 };
 use sqlx::{
     sqlite::SqlitePool,
@@ -19,11 +19,11 @@ struct DecksTemplate<'a> { // 'a indicates that the struct must not live longer 
     decks: &'a [crate::core::Deck], 
 }
 
-pub async fn create_deck(State(pool): State<SqlitePool>, auth: AuthUser, deck_info: Form<DeckInfo>) -> Result<Json<bool>, (StatusCode, String)>{
-    let result = crate::core::create_deck(&pool, auth.user_id, &deck_info.deck_name)
+pub async fn create_deck(State(pool): State<SqlitePool>, auth: AuthUser, deck_info: Form<DeckInfo>) -> Result<Redirect, (StatusCode, String)>{
+    let _ = crate::core::create_deck(&pool, auth.user_id, &deck_info.deck_name)
         .await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-    Ok(Json(result))
+    Ok(Redirect::to("/decks")) //now we redirect to keep it simple. we will have to introduce htmx to only refersh the list of decks, instead of refreshing the whole page
 }
 
 // library to integrate Askama and axum https://askama.rs/en/stable/frameworks.html

@@ -9,12 +9,12 @@ pub struct Deck {
 }
 
 
-pub async fn create_deck(pool: &SqlitePool, user_id: i64, deck_name: &String) -> Result<bool, sqlx::Error> {
+pub async fn create_deck(pool: &SqlitePool, user_id: i64, deck_name: &str) -> Result<(), sqlx::Error> {
     let query = sqlx::query("INSERT INTO decks (user_id, name) VALUES (?,?)")
         .bind(user_id)
         .bind(deck_name);
-    let result =   query.execute(pool).await?;
-    Ok(result.rows_affected() > 0)
+    query.execute(pool).await?;
+    Ok(())
 }
 
 pub async fn list_decks(pool: &SqlitePool, user_id: i64) -> Result<Vec<Deck>, sqlx::Error> {

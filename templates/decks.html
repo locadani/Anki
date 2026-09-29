@@ -1,3 +1,9 @@
+Create deck:
+<form action="/deck" method="POST">
+    <label for="deck_name">Deck name:</label> <input type="text" name="deck_name" id="deck_name" required/>
+    <button type="submit">Confirm</button>
+</form>
+<br>
 <h1>Decks</h1>
 <ul>
 {% if decks.is_empty() %}
