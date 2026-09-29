@@ -1,6 +1,6 @@
 use askama::Template;
 use axum::{
-    Json, extract::{Form, FromRequestParts, State}, http::{StatusCode, request::Parts}, response::{Html, Redirect},
+    Json, extract::{Form, FromRequestParts, OptionalFromRequestParts, State}, http::{StatusCode, request::Parts}, response::{Html, Redirect},
 };
 use sqlx::{
     sqlite::SqlitePool,
@@ -33,6 +33,21 @@ impl<S: Send + Sync> FromRequestParts<S> for AuthUser {
         match user_id {
             Ok(Some(id)) => Ok(AuthUser { user_id: id }),
             Ok(None) => Err((StatusCode::UNAUTHORIZED, "not logged in".to_string())),
+            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        }
+    }
+}
+
+impl<S: Send + Sync> OptionalFromRequestParts<S> for AuthUser {
+    type Rejection = (StatusCode, String);
+    async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Option<Self>, Self::Rejection> { // self means "the type after for " AuthUser int his case
+        let session = Session::from_request_parts(parts, state)
+            .await
+            .map_err(|(status, msg)| (status, msg.to_string()))?;
+        let user_id = session.get::<i64>("user_id").await;
+        match user_id {
+            Ok(Some(id)) => Ok(Some(AuthUser { user_id: id })),
+            Ok(None) => Ok(None),
             Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
         }
     }
@@ -80,4 +95,12 @@ pub async fn logout(session: Session) -> Result<Redirect, (StatusCode, String)>{
 pub async fn me(auth: AuthUser) -> Result<Json<i64>, (StatusCode, String)>{
     let my_id = auth.user_id;
     Ok(Json(my_id))
+}
+
+pub async fn verify_user_and_redirect(auth: Option<AuthUser>) -> Redirect{
+    
+    match auth {
+        Some(_) => Redirect::to("/decks"),
+        None => Redirect::to("/login"),
+    }
 }

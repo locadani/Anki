@@ -12,7 +12,7 @@ use sqlx::{
 };
 
 // pub use ... allows the other mods to use these values
-pub use auth::{login, login_page, logout, me};
+pub use auth::{login, login_page, logout, me, verify_user_and_redirect};
 pub use decks::{create_deck, list_decks};
 
 pub async fn count_users(State(pool): State<SqlitePool>) -> Result<Json<u16>, (StatusCode, String)> {
