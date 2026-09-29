@@ -20,3 +20,10 @@ pub async fn create_deck(State(pool): State<SqlitePool>, auth: AuthUser, deck_in
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     Ok(Json(result))
 }
+
+pub async fn list_decks(State(pool): State<SqlitePool>, auth: AuthUser) -> Result<Json<Vec<crate::core::Deck>>, (StatusCode, String)>{
+    let result = crate::core::list_decks(&pool, auth.user_id)
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    Ok(Json(result))
+}

@@ -8,4 +8,4 @@ mod deck;
 pub use auth::verify_password;
 pub use user::find_by_username;
 pub use db::{connect, count_users};
-pub use deck::create_deck;
+pub use deck::{Deck, create_deck, list_decks};
