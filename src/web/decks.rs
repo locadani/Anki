@@ -14,7 +14,7 @@ pub struct DeckInfo {
 }
 
 #[derive(Template)] // given the code in the template, at compile time generate the Rust code that will build the page at runtime
-#[template(path = "decks.html", print = "code")]
+#[template(path = "decks.html")]
 struct DecksTemplate<'a> { // 'a indicates that the struct must not live longer than the owner of the value of the fields with marked with 'a 
     decks: &'a [crate::core::Deck], 
 }

@@ -14,7 +14,7 @@ pub struct Login {
 }
 
 #[derive(Template)]
-#[template(path = "login.html", print = "code")]
+#[template(path = "login.html")]
 struct LoginTemplate {
  
 }
