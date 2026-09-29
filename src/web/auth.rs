@@ -26,14 +26,11 @@ pub struct AuthUser {
 impl<S: Send + Sync> FromRequestParts<S> for AuthUser {
     type Rejection = (StatusCode, String);
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> { // self means "the type after for " AuthUser int his case
-        let session = Session::from_request_parts(parts, state)
-            .await
-            .map_err(|(status, msg)| (status, msg.to_string()))?;
-        let user_id = session.get::<i64>("user_id").await;
-        match user_id {
-            Ok(Some(id)) => Ok(AuthUser { user_id: id }),
+        let optional_user = <AuthUser as OptionalFromRequestParts<S>>::from_request_parts(parts, state).await;
+        match optional_user {
+            Ok(Some(authenticated_user)) => Ok(authenticated_user),
             Ok(None) => Err((StatusCode::UNAUTHORIZED, "not logged in".to_string())),
-            Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+            Err(e) => Err(e)
         }
     }
 }
