@@ -4,7 +4,9 @@ mod user;
 mod auth;
 mod db;
 mod deck;
+mod deck_utils;
 
+// Re-export out of core so that it is visible to the code outside
 pub use auth::verify_password;
 pub use user::find_by_username;
 pub use db::{connect, count_users};

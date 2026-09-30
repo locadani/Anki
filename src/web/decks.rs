@@ -6,7 +6,7 @@ use sqlx::{
     sqlite::SqlitePool,
 };
 
-use crate::core::{AddExistingDeckFailureReason::{DatabaseError, ExistingDeck}, DeleteExistingDeckFailureReason, UpdateExistingDeckFailureReason};
+use crate::core::{AddExistingDeckFailureReason::{DatabaseError, EmptyFormattedName, ExistingDeck}, DeleteExistingDeckFailureReason, UpdateExistingDeckFailureReason};
 
 use super::auth::AuthUser;
 
@@ -27,7 +27,8 @@ pub async fn create_deck(State(pool): State<SqlitePool>, auth: AuthUser, deck_in
         .map_err(|e| {
                 match e {
                     DatabaseError(db_error) => (StatusCode::INTERNAL_SERVER_ERROR, db_error.to_string()),
-                    ExistingDeck => (StatusCode::CONFLICT, format!("Deck with name {} already exists", deck_info.deck_name))
+                    ExistingDeck => (StatusCode::CONFLICT, format!("Deck with name {} already exists", deck_info.deck_name)),
+                    EmptyFormattedName => (StatusCode::BAD_REQUEST, "Provided name results in only spaces".to_string())
                 }
             }
         )?;
@@ -59,7 +60,8 @@ pub async fn update_deck_name(State(pool): State<SqlitePool>, Path(deck_id): Pat
                 match e {
                     UpdateExistingDeckFailureReason::DatabaseError(db_error) => (StatusCode::INTERNAL_SERVER_ERROR, db_error.to_string()),
                     UpdateExistingDeckFailureReason::UserHasNoSuchDeck => (StatusCode::NOT_FOUND, format!("Deck with name {} not found", deck_info.deck_name)),
-                    UpdateExistingDeckFailureReason::ExistingDeckName => (StatusCode::CONFLICT, format!("Deck with name {} already exists", deck_info.deck_name))
+                    UpdateExistingDeckFailureReason::ExistingDeckName => (StatusCode::CONFLICT, format!("Deck with name {} already exists", deck_info.deck_name)),
+                    UpdateExistingDeckFailureReason::EmptyFormattedName => (StatusCode::BAD_REQUEST, "Provided name results in only spaces".to_string())
                 }
             }
         )?;

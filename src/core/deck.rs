@@ -1,5 +1,7 @@
 use sqlx::sqlite::SqlitePool;
 
+use crate::core::deck_utils::format_deck_name;
+
 #[derive(serde::Serialize)]
 #[derive(sqlx::FromRow)]
 pub struct Deck {
@@ -10,13 +12,15 @@ pub struct Deck {
 
 pub enum AddExistingDeckFailureReason {
     DatabaseError(sqlx::Error),
-    ExistingDeck
+    ExistingDeck,
+    EmptyFormattedName
 }
 
 pub enum UpdateExistingDeckFailureReason {
     DatabaseError(sqlx::Error),
     UserHasNoSuchDeck,
-    ExistingDeckName
+    ExistingDeckName,
+    EmptyFormattedName
 }
 
 
@@ -27,9 +31,13 @@ pub enum DeleteExistingDeckFailureReason {
 
 
 pub async fn create_deck(pool: &SqlitePool, user_id: i64, deck_name: &str) -> Result<(), AddExistingDeckFailureReason> {
+    let formatted_deck_name = format_deck_name(deck_name);
+    if formatted_deck_name.is_empty() {
+        return Err(AddExistingDeckFailureReason::EmptyFormattedName);
+    }
     let query = sqlx::query("INSERT INTO decks (user_id, name) VALUES (?,?)")
         .bind(user_id)
-        .bind(deck_name);
+        .bind(formatted_deck_name);
     let result = query.execute(pool).await;
     match result {
         Ok(_) => Ok(()),
@@ -60,8 +68,12 @@ pub async fn list_decks(pool: &SqlitePool, user_id: i64) -> Result<Vec<Deck>, sq
 }
 
 pub async fn update_deck_name(pool: &SqlitePool, user_id: i64, deck_id: i64, new_deck_name: &str) -> Result<(), UpdateExistingDeckFailureReason> {
+    let formatted_deck_name = format_deck_name(new_deck_name);
+    if formatted_deck_name.is_empty() {
+        return Err(UpdateExistingDeckFailureReason::EmptyFormattedName);
+    }
     let query = sqlx::query("UPDATE decks SET name = ? WHERE user_id = ? AND id = ?")
-        .bind(new_deck_name)
+        .bind(formatted_deck_name)
         .bind(user_id)
         .bind(deck_id);
     let result =   query.execute(pool).await;
