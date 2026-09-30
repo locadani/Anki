@@ -6,6 +6,8 @@ use sqlx::{
     sqlite::SqlitePool,
 };
 
+use crate::core::AddExistingDeckFailureReason::{DatabaseError, ExistingDeck};
+
 use super::auth::AuthUser;
 
 #[derive(serde::Deserialize)]
@@ -20,9 +22,15 @@ struct DecksTemplate<'a> { // 'a indicates that the struct must not live longer 
 }
 
 pub async fn create_deck(State(pool): State<SqlitePool>, auth: AuthUser, deck_info: Form<DeckInfo>) -> Result<Redirect, (StatusCode, String)>{
-    let _ = crate::core::create_deck(&pool, auth.user_id, &deck_info.deck_name)
+    crate::core::create_deck(&pool, auth.user_id, &deck_info.deck_name)
         .await
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+        .map_err(|e| {
+                match e {
+                    DatabaseError(db_error) => (StatusCode::INTERNAL_SERVER_ERROR, db_error.to_string()),
+                    ExistingDeck => (StatusCode::CONFLICT, format!("Deck with name {} already exists", deck_info.deck_name))
+                }
+            }
+        )?;
     Ok(Redirect::to("/decks")) //now we redirect to keep it simple. we will have to introduce htmx to only refersh the list of decks, instead of refreshing the whole page
 }
 
