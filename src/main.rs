@@ -22,6 +22,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> { // use async fn main
         .route("/login", get(web::login_page).post(web::login))
         .route("/logout", post(web::logout))
         .route("/deck", post(web::create_deck))
+        .route("/decks/{id}/rename", post(web::update_deck_name))
+        .route("/decks/{id}/delete", post(web::delete_deck))
         .route("/decks", get(web::list_decks))
         .route("/", get(web::verify_user_and_redirect))
         .layer(session_layer) // runs before and after the handler handles the routes

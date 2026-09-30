@@ -1,12 +1,12 @@
 use askama::Template;
 use axum::{
-    extract::{Form, State}, http::StatusCode, response::{Html, Redirect},
+    extract::{Form, Path, State}, http::StatusCode, response::{Html, Redirect},
 };
 use sqlx::{
     sqlite::SqlitePool,
 };
 
-use crate::core::AddExistingDeckFailureReason::{DatabaseError, ExistingDeck};
+use crate::core::{AddExistingDeckFailureReason::{DatabaseError, ExistingDeck}, DeleteExistingDeckFailureReason, UpdateExistingDeckFailureReason};
 
 use super::auth::AuthUser;
 
@@ -50,4 +50,31 @@ pub async fn list_decks(State(pool): State<SqlitePool>, auth: AuthUser) -> Resul
         Ok(decks_list_page) => Ok(Html(decks_list_page)),
         Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
     }
+}
+
+pub async fn update_deck_name(State(pool): State<SqlitePool>, Path(deck_id): Path<i64>, auth: AuthUser, deck_info: Form<DeckInfo>) -> Result<Redirect, (StatusCode, String)> {
+        crate::core::update_deck_name(&pool, auth.user_id, deck_id, &deck_info.deck_name)
+        .await
+        .map_err(|e| {
+                match e {
+                    UpdateExistingDeckFailureReason::DatabaseError(db_error) => (StatusCode::INTERNAL_SERVER_ERROR, db_error.to_string()),
+                    UpdateExistingDeckFailureReason::UserHasNoSuchDeck => (StatusCode::NOT_FOUND, format!("Deck with name {} not found", deck_info.deck_name)),
+                    UpdateExistingDeckFailureReason::ExistingDeckName => (StatusCode::CONFLICT, format!("Deck with name {} already exists", deck_info.deck_name))
+                }
+            }
+        )?;
+    Ok(Redirect::to("/decks")) 
+}
+
+pub async fn delete_deck(State(pool): State<SqlitePool>, Path(deck_id): Path<i64>, auth: AuthUser) -> Result<Redirect, (StatusCode, String)> {
+        crate::core::delete_deck(&pool, auth.user_id, deck_id)
+        .await
+        .map_err(|e| {
+                match e {
+                    DeleteExistingDeckFailureReason::DatabaseError(db_error) => (StatusCode::INTERNAL_SERVER_ERROR, db_error.to_string()),
+                    DeleteExistingDeckFailureReason::UserHasNoSuchDeck => (StatusCode::NOT_FOUND, "Deck not found".to_string())
+                }
+            }
+        )?;
+    Ok(Redirect::to("/decks")) 
 }
