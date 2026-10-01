@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Added by cargo
+
+/target
+
+# SQLite DBs
+*.db

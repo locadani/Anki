@@ -1,0 +1,44 @@
+Create deck:
+<form action="/deck" method="POST">
+    <label for="deck_name">Deck name:</label> <input type="text" name="deck_name" id="deck_name" required/>
+    <button type="submit">Confirm</button>
+</form>
+<br>
+<h1>Decks</h1>
+{% if decks.is_empty() %}
+    No decks
+{% else %}
+
+    <ul>
+        {% for deck in decks %}
+            <li>
+                {{ deck.name }}
+                <details>
+                    <summary>
+                        &#9999;
+                    </summary>
+                    <p>
+                        <form action="/decks/{{deck.id}}/rename" method="POST">
+                            <label for="new_deck_name">New name:</label> <input type="text" name="deck_name" id="new_deck_name" required/>
+                            <button type="submit">Rename</button>
+                        </form>
+                    </p>
+                </details>
+
+                <details>
+                    <summary>
+                        Delete
+                    </summary>
+                    <p>
+                        <form action="/decks/{{deck.id}}/delete" method="POST">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </p>
+                </details>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+<form action="/logout" method="POST">
+    <button type="submit">Logout</button>
+</form>

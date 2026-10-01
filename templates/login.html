@@ -1,0 +1,5 @@
+<form action="/login" method="POST">
+    Username: <input placeholder="testuser" type="text" name="username"/> {# <!-- name="XXXXXX" must match the fields in the Struct used in the Form of the endpoint, so that they are automatically filled -->  dont use <!-- directly because it gets rendered in the page that is sent to the client -->#} 
+    Password: <input type="password" name="password"/>
+    <button type="submit">Login</button>
+</form>
